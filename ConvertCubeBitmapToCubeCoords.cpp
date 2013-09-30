@@ -36,49 +36,41 @@ bool ConvertCubeBitmapToCubeCoords::ParseCubeBitmap(const char* filename)
         return false;
     }
 
+    int currentDim = -1;
+    Cube currentCube;
 
     while (!file.eof())
     {
         int c = file.get();
-//        if (c == '[')
-//        {
-//            currentLevel++;
-//        }
-//        else if (c == ']')
-//        {
-//            if (currentLevel == LT_Cell)
-//            {
-//                currentCell.push_back(currentValue);
-//                _cells.push_back(currentCell);
-//                currentValue = 0;
-//                currentCell.clear();
-//                cellsCountInCurrentDim++;
-//            }
-//            else if (currentLevel == LT_Dim)
-//            {
-//                _cellsCountByDim[currentDim] = cellsCountInCurrentDim;
-//                cellsCountInCurrentDim = 0;
-//                currentDim++;
-//            }
-//            currentLevel--;
-//        }
-//        else if (c == ',')
-//        {
-//            if (currentLevel == LT_Cell)
-//            {
-//                currentCell.push_back(currentValue);
-//                currentValue = 0;
-//            }
-//        }
-//        else if (c >= '0' && c <= '9')
-//        {
-//            currentValue = currentValue * 10 + (c - '0');
-//        }
-//        else
-//        {
-//            continue;
-//        }
+        if (c == '[')
+        {
+            currentDim++;
+            while (currentDim > static_cast<int>(currentCube.size()) - 1)
+            {
+                currentCube.push_back(0);
+            }
+            currentCube[currentDim] = 0;
+        }
+        else if (c == ']')
+        {
+            currentDim--;
+        }
+        else if (c == ',')
+        {
+            currentCube[currentDim]++;
+        }
+        else if (c == '1')
+        {
+            _cubes.push_back(currentCube);
+        }
+        else
+        {
+            continue;
+        }
     }
+
+    std::cout<<"parsed "<<_cubes.size()<<" cubes"<<std::endl;
+
     file.close();
     return true;
 }
@@ -91,6 +83,14 @@ bool ConvertCubeBitmapToCubeCoords::WriteCubeCoords(const char* filename)
         return false;
     }
 
+    for (Cubes::iterator it = _cubes.begin(); it != _cubes.end(); ++it)
+    {
+        for (Cube::iterator jt = it->begin(); jt != it->end(); jt++)
+        {
+            file<<*jt<<" ";
+        }
+        file<<std::endl;
+    }
 
     file.close();
     return true;
